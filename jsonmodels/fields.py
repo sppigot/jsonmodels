@@ -1,5 +1,6 @@
 import datetime
 import re
+import inspect
 from weakref import WeakKeyDictionary
 
 from dateutil.parser import parse
@@ -85,7 +86,7 @@ class BaseField:
             raise ValidationError("Field is required!")
 
     def _validate_against_types(self, value):
-        if value is not None and not isinstance(value, self.types):
+        if value is not None and not isinstance(value, self.types) and not value in self.types:
             raise ValidationError(
                 'Value is wrong, expected type "{types}"'.format(
                     types=", ".join([t.__name__ for t in self.types])
@@ -332,10 +333,23 @@ class EmbeddedField(BaseField):
 
     def validate(self, value):
         super().validate(value)
+        if inspect.isclass(value):
+          testvalue = value() 
+        else:
+          testvalue = value
+
         try:
-            value.validate()
+            testvalue.validate()
         except AttributeError:
             pass
+
+    def get_default_value(self):
+       defvalue = super().get_default_value()
+       if inspect.isclass(defvalue):
+         return defvalue()
+       else:
+         return defvalue
+
 
     def parse_value(self, value):
         """Parse value to proper model type."""
