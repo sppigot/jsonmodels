@@ -86,11 +86,12 @@ class BaseField:
             raise ValidationError("Field is required!")
 
     def _validate_against_types(self, value):
-        if value is not None and not isinstance(value, self.types) and not value in self.types:
+        if value is not None and not isinstance(value, self.types) \
+                             and value not in self.types:
             raise ValidationError(
                 'Value is wrong, expected type "{types}"'.format(
                     types=", ".join([t.__name__ for t in self.types])
-                ),
+                    ),
                 value,
             )
 
@@ -119,9 +120,9 @@ class BaseField:
             return
 
         if inspect.isclass(value):
-          testvalue = value() 
+            testvalue = value()
         else:
-          testvalue = value
+            testvalue = value
 
         for validator in self.validators:
             try:
@@ -339,9 +340,9 @@ class EmbeddedField(BaseField):
     def validate(self, value):
         super().validate(value)
         if inspect.isclass(value):
-          testvalue = value() 
+            testvalue = value()
         else:
-          testvalue = value
+            testvalue = value
 
         try:
             testvalue.validate()
@@ -349,12 +350,11 @@ class EmbeddedField(BaseField):
             pass
 
     def get_default_value(self):
-       defvalue = super().get_default_value()
-       if inspect.isclass(defvalue):
-         return defvalue()
-       else:
-         return defvalue
-
+        defvalue = super().get_default_value()
+        if inspect.isclass(defvalue):
+            return defvalue()
+        else:
+            return defvalue
 
     def parse_value(self, value):
         """Parse value to proper model type."""
