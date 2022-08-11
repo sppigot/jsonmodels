@@ -118,11 +118,16 @@ class BaseField:
         if value is None and self.nullable:
             return
 
+        if inspect.isclass(value):
+          testvalue = value() 
+        else:
+          testvalue = value
+
         for validator in self.validators:
             try:
-                validator.validate(value)
+                validator.validate(testvalue)
             except AttributeError:
-                validator(value)
+                validator(testvalue)
 
     def get_default_value(self):
         """Get default value for field.
